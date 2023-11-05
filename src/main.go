@@ -7,7 +7,7 @@ import (
 	"os"
 	"time"
 
-	"example.com/toggl/configs"
+	"github.com/mamemomonga/togglTrack-wandering-warrior/src/configs"
 	"github.com/shiena/ansicolor"
 )
 

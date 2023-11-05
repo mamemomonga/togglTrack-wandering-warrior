@@ -1,4 +1,4 @@
-module example.com/toggl
+module github.com/mamemomonga/togglTrack-wandering-warrior/src
 
 go 1.20
 

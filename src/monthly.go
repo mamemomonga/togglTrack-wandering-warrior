@@ -3,8 +3,8 @@ package main
 import (
 	"time"
 
-	"example.com/toggl/toggler"
-	"example.com/toggl/utils"
+	"github.com/mamemomonga/togglTrack-wandering-warrior/src/toggler"
+	"github.com/mamemomonga/togglTrack-wandering-warrior/src/utils"
 	"github.com/wsxiaoys/terminal/color"
 )
 

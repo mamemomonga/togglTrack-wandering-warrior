@@ -7,8 +7,9 @@ ENV GOPATH=/go
 ENV GOBIN=/go/bin
 ENV GO111MODULE=on
 
-ADD . /g/
+ADD ./src/ /g/
 WORKDIR /g
+
 RUN set -xe && \
     rm -rf /g/release && \
     make release

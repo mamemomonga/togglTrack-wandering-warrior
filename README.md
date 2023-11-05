@@ -37,6 +37,8 @@ macOS Intel
 
     $ ./toggl-wandering-warrior -config ./config.yaml -month 1
 
+## ビルド
+
 
 # License
 

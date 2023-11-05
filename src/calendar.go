@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"example.com/toggl/utils"
+	"github.com/mamemomonga/togglTrack-wandering-warrior/src/utils"
 )
 
 type MonthlyCalendarDay struct {
