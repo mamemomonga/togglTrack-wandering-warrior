@@ -6,6 +6,7 @@ import (
 	"log"
 	"time"
 
+	"github.com/mamemomonga/togglTrack-wandering-warrior/src/utils"
 	"github.com/ta9mi141/toggl-go/track/toggl"
 )
 
@@ -46,28 +47,25 @@ type MonthlyEntries struct {
 	Remain time.Duration
 }
 
+func (t *Toggler) dateStringPtr(tm time.Time) *string {
+	s := tm.Format(time.DateOnly)
+	return &s
+}
+
 func (t *Toggler) Monthly(now time.Time, startStopRound time.Duration) []MonthlyEntries {
 
 	monthlyEntries := []MonthlyEntries{}
+	tokyo := utils.TzTokyo()
 
 	// 1ヶ月
-	var startDateStr, endDateStr string
-	var startDateTime, endDateTime time.Time
-	tokyo, err := time.LoadLocation("Asia/Tokyo")
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	startDateTime = time.Date(now.Year(), now.Month(), 1, 0, 0, 0, 0, tokyo)
-	endDateTime = startDateTime.AddDate(0, 1, 0)
-	startDateStr = startDateTime.Format(time.DateOnly)
-	endDateStr = endDateTime.Format(time.DateOnly)
+	startDateTime := time.Date(now.Year(), now.Month(), 1, 0, 0, 0, 0, tokyo)
+	endDateTime := startDateTime.AddDate(0, 1, 0)
 
 	// 取得
 	c := t.newAPIClient()
 	timeEntries, err := c.GetTimeEntries(context.Background(), &toggl.GetTimeEntriesQuery{
-		StartDate: &startDateStr,
-		EndDate:   &endDateStr,
+		StartDate: t.dateStringPtr(startDateTime),
+		EndDate:   t.dateStringPtr(endDateTime),
 	})
 	if err != nil {
 		log.Fatal(err)
@@ -123,6 +121,10 @@ func (t *Toggler) Monthly(now time.Time, startStopRound time.Duration) []Monthly
 				continue
 			}
 
+			// 開始終了時刻の取得
+			entryStart := (*entry.Start).Round(startStopRound).In(tokyo)
+			entryStop := (*entry.Stop).Round(startStopRound).In(tokyo)
+
 			// 稼働時間の処理
 			duration, err := time.ParseDuration(fmt.Sprintf("%ds", *entry.Duration))
 			if err != nil {
@@ -130,11 +132,6 @@ func (t *Toggler) Monthly(now time.Time, startStopRound time.Duration) []Monthly
 			}
 			duration = duration.Round(startStopRound)
 			workDuration = workDuration + duration
-
-			entryStart := *entry.Start
-			entryStop := *entry.Stop
-			entryStart = entryStart.Round(startStopRound).In(tokyo)
-			entryStop = entryStop.Round(startStopRound).In(tokyo)
 
 			// 休憩以外の場合
 			if timeStart.IsZero() {
