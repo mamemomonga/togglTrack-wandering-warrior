@@ -3,7 +3,8 @@ RELEASE_VERSION=v0.0.3
 
 CONTAINER_IMAGE=$(shell echo $(APPNAME) | tr A-Z a-z)
 
-release:
+release: version
+	git rev-parse --short HEAD > revision
 	docker build -t $(CONTAINER_IMAGE) .	
 	docker run --rm $(CONTAINER_IMAGE) tar cC /g release | tar xv
 

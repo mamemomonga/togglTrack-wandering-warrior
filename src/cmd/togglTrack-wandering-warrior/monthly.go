@@ -8,13 +8,10 @@ import (
 	"github.com/wsxiaoys/terminal/color"
 )
 
-func monthly(targetDate time.Time, monthOffsetMode bool) {
+func monthly(today, target time.Time) {
 
 	weekdayTotal := 0
 	weekdayRemain := 0
-
-	now := time.Now()
-	// now := time.Date(2023, 10, 28, 0, 0, 0, 0, utils.TzTokyo())
 
 	tgr := toggler.New(
 		&toggler.NewOptions{
@@ -24,14 +21,14 @@ func monthly(targetDate time.Time, monthOffsetMode bool) {
 		})
 
 	workTimeTotal := time.Duration(0)
-	monthly := tgr.Monthly(targetDate, cfg.Worktimes.Round)
+	monthly := tgr.Monthly(target, cfg.Worktimes.Round)
 
 	color.Fprintf(aw,
 		"@{bW} %s         @{|}|@{bW} %s  @{|}|@{bW} %s  @{|}|@{bW} %s   @{|}|@{bW} %s   @{|}|@{bW} %s  @{|}|@{bW} %s @{|}\n",
 		" 日付", "開始", "終了", "休憩", "稼働", "総稼働", "最低達成",
 	)
 
-	for daynum, cal := range monthlyCalendar(targetDate) {
+	for daynum, cal := range monthlyCalendar(target) {
 		ent := monthly[daynum]
 		switch cal.Color {
 		case "red":
@@ -44,7 +41,7 @@ func monthly(targetDate time.Time, monthOffsetMode bool) {
 
 		if cal.IsWeekday {
 			weekdayTotal++
-			if ent.Date.After(now) {
+			if ent.Date.After(today) {
 				weekdayRemain++
 			}
 		}
@@ -65,21 +62,21 @@ func monthly(targetDate time.Time, monthOffsetMode bool) {
 		}
 	}
 
-	monthlySummary(now, targetDate, weekdayTotal, weekdayRemain, workTimeTotal)
+	monthlySummary(today, target, weekdayTotal, weekdayRemain, workTimeTotal)
 }
 
 func monthlySummary(now, target time.Time, weekdayTotal, weekdayRemain int, workTimeTotal time.Duration) {
 	color.Fprintf(aw, "  @{bY}  %04d年%02d月の概要  @{|}\n", target.Year(), target.Month())
 
 	color.Fprintf(aw, "今日は@{!}%04d年%02d月%02d日@{|}です\n", now.Year(), now.Month(), now.Day())
-	color.Fprintf(aw, "平日は@{!}%d日@{|}で@{!}残り%d日@{|}で ", weekdayTotal, weekdayRemain)
+	color.Fprintf(aw, "平日は@{!}%d日@{|}で@{!}残り%d日@{|}で", weekdayTotal, weekdayRemain)
 	color.Fprintf(aw, "@{!}%5.2f%%@{|}が経過 ", (float64(weekdayTotal-weekdayRemain)/float64(weekdayTotal))*100)
 	color.Fprintf(aw, "総稼働時間は@{!}%s@{|}です\n", utils.DurationHourMin(workTimeTotal))
 
 	guessRemain := cfg.Worktimes.End.Sub(cfg.Worktimes.Start).Hours() * float64(weekdayRemain)
 
-	color.Fprintf(aw, "残り@{!}%d日間@{|}をこのペースで働けば\n", weekdayRemain)
-	color.Fprintf(aw, "  @{!}%s~%s(休憩%.0f時間)@{|} で稼働した場合\n",
+	color.Fprintf(aw, "残り@{!}%d日間@{|}を@{!}%s~%s(休憩%.0f時間)@{|}で稼働した場合\n",
+		weekdayRemain,
 		cfg.Worktimes.Start.Format(time.TimeOnly)[:5],
 		cfg.Worktimes.End.Format(time.TimeOnly)[:5],
 		cfg.Worktimes.Rest.Hours(),

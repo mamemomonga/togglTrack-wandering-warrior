@@ -8,6 +8,8 @@ ENV GOBIN=/go/bin
 ENV GO111MODULE=on
 
 ADD ./src/ /g/
+COPY ./version /g/
+COPY ./revision /g/
 WORKDIR /g
 
 RUN set -xe && \
