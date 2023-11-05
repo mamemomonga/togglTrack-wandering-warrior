@@ -15,10 +15,18 @@ type MonthlyCalendarDay struct {
 	IsWeekday bool
 }
 
-func monthlyCalendar(target time.Time) []MonthlyCalendarDay {
+func monthlyCalendar(today, target time.Time) []MonthlyCalendarDay {
 	cal := []MonthlyCalendarDay{}
 
+	appendCal := func(ca MonthlyCalendarDay, dateStr string) {
+		if today.Format(time.DateOnly) == dateStr {
+			ca.Color = "yellow"
+		}
+		cal = append(cal, ca)
+	}
+
 	start, end := utils.MonthRange(target)
+
 	for date := start; date.Before(end); date = date.AddDate(0, 0, 1) {
 
 		ca := MonthlyCalendarDay{
@@ -37,7 +45,7 @@ func monthlyCalendar(target time.Time) []MonthlyCalendarDay {
 				ca.IsWeekday = false
 				ca.OffName = ho.Name
 				ca.Color = "red"
-				cal = append(cal, ca)
+				appendCal(ca, dateStr)
 				continue
 			}
 		}
@@ -54,7 +62,7 @@ func monthlyCalendar(target time.Time) []MonthlyCalendarDay {
 		default: // 平日
 			ca.IsWeekday = true
 		}
-		cal = append(cal, ca)
+		appendCal(ca, dateStr)
 	}
 
 	return cal

@@ -39,20 +39,22 @@ func main() {
 		log.Fatal(err)
 	}
 
-	// 対象日
-	target := time.Now().AddDate(0, -*monthOffset, 0)
-
 	version_string := ""
-	//	if version != "" {
-	version_string = fmt.Sprintf("v%s-r%s", version, revision)
-	//	}
+	if version != "" {
+		version_string = fmt.Sprintf("v%s-%s", version, revision)
+	}
 
 	color.Fprintf(aw, "togglTrack-wandering-warrior %s\n", version_string)
 
+	// 現在
 	today := time.Now()
 	if *demo {
-		today = time.Date(2023, 10, 28, 0, 0, 0, 0, utils.TzTokyo())
+		today = time.Date(2023, 10, 27, 0, 0, 0, 0, utils.TzTokyo())
 	}
+
+	// 対象日
+	target := today.AddDate(0, -*monthOffset, 0)
+
 	monthly(today, target)
 
 }

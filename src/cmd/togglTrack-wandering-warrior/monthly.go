@@ -28,13 +28,15 @@ func monthly(today, target time.Time) {
 		" 日付", "開始", "終了", "休憩", "稼働", "総稼働", "最低達成",
 	)
 
-	for daynum, cal := range monthlyCalendar(target) {
+	for daynum, cal := range monthlyCalendar(today, target) {
 		ent := monthly[daynum]
 		switch cal.Color {
 		case "red":
 			color.Fprintf(aw, "@{wR}%s@{|}", cal.Text)
 		case "blue":
 			color.Fprintf(aw, "@{wB}%s@{|}", cal.Text)
+		case "yellow":
+			color.Fprintf(aw, "@{bY}%s@{|}", cal.Text)
 		default:
 			color.Fprintf(aw, "%s@{|}", cal.Text)
 		}
@@ -66,14 +68,15 @@ func monthly(today, target time.Time) {
 }
 
 func monthlySummary(now, target time.Time, weekdayTotal, weekdayRemain int, workTimeTotal time.Duration) {
-	color.Fprintf(aw, "  @{bY}  %04d年%02d月の概要  @{|}\n", target.Year(), target.Month())
+	color.Fprintf(aw, "@{bW}       %04d年%02d月の概要       @{|}\n", target.Year(), target.Month())
 
 	color.Fprintf(aw, "今日は@{!}%04d年%02d月%02d日@{|}です\n", now.Year(), now.Month(), now.Day())
-	color.Fprintf(aw, "平日は@{!}%d日@{|}で@{!}残り%d日@{|}で", weekdayTotal, weekdayRemain)
-	color.Fprintf(aw, "@{!}%5.2f%%@{|}が経過 ", (float64(weekdayTotal-weekdayRemain)/float64(weekdayTotal))*100)
-	color.Fprintf(aw, "総稼働時間は@{!}%s@{|}です\n", utils.DurationHourMin(workTimeTotal))
+	color.Fprintf(aw, "@{!}%02d@{|}月の平日は@{!}%d日間@{|}で@{!}残り%d日@{|}で", target.Month(), weekdayTotal, weekdayRemain)
+	color.Fprintf(aw, "@{!}%5.2f%%@{|}が経過します\n", (float64(weekdayTotal-weekdayRemain)/float64(weekdayTotal))*100)
+	color.Fprintf(aw, "現在の総稼働時間は@{!}%s@{|}です\n", utils.DurationHourMin(workTimeTotal))
 
 	guessRemain := cfg.Worktimes.End.Sub(cfg.Worktimes.Start).Hours() * float64(weekdayRemain)
+	guessTotal := guessRemain + workTimeTotal.Hours()
 
 	color.Fprintf(aw, "残り@{!}%d日間@{|}を@{!}%s~%s(休憩%.0f時間)@{|}で稼働した場合\n",
 		weekdayRemain,
@@ -85,13 +88,22 @@ func monthlySummary(now, target time.Time, weekdayTotal, weekdayRemain int, work
 		guessRemain,
 	)
 
-	color.Fprintf(aw, "    最低稼働@{!}%.0f時間@{|}の@{!}%6.2f%%@{|}(100%%を超えること)\n",
+	color.Fprintf(aw, "    最低稼働@{!}%.0f時間@{|}の@{!}%6.2f%%@{|}\n",
 		cfg.Worktimes.Min.Hours(),
-		((guessRemain+workTimeTotal.Hours())/cfg.Worktimes.Min.Hours())*100,
+		(guessTotal/cfg.Worktimes.Min.Hours())*100,
 	)
-	color.Fprintf(aw, "    最高稼働@{!}%.0f時間@{|}の@{!}%6.2f%%@{|}(100%%を超えないこと)\n",
+	color.Fprintf(aw, "    最高稼働@{!}%.0f時間@{|}の@{!}%6.2f%%@{|}\n",
 		cfg.Worktimes.Max.Hours(),
-		((guessRemain+workTimeTotal.Hours())/cfg.Worktimes.Max.Hours())*100,
+		(guessTotal/cfg.Worktimes.Max.Hours())*100,
 	)
-	color.Fprintf(aw, "を達成予定です。今週も勤労に勤しみましょう。\n")
+
+	if guessTotal < cfg.Worktimes.Min.Hours() {
+		color.Fprintf(aw, "    @{bY} 未達が予測されます @{|}\n")
+	} else if guessTotal > cfg.Worktimes.Max.Hours() {
+		color.Fprintf(aw, "    @{wR} 超過が予測されます @{|}\n")
+	} else {
+		color.Fprintf(aw, "    @{wB} 達成が予測されます @{|}\n")
+	}
+
+	color.Fprintf(aw, "今週も勤労に勤しみましょう。\n")
 }
