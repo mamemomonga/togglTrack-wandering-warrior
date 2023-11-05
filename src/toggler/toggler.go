@@ -83,13 +83,11 @@ func (t *Toggler) Monthly(now time.Time, startStopRound time.Duration) []Monthly
 	}
 
 	// 日付ごとに処理する
-	// fmt.Println(" 日付          | 開始  | 終了  | 休憩  | 作業  | 残稼働時間")
 	for date := startDateTime; date.Before(endDateTime); date = date.AddDate(0, 0, 1) {
 		dateStr := date.Format(time.DateOnly)
 
 		// その日のデータがなければスキップ
 		if _, ok := dailyEntries[dateStr]; !ok {
-			// fmt.Printf("%s(%s)\n", dateStr, t.WeekdayJP(date))
 			monthlyEntries = append(monthlyEntries, MonthlyEntries{
 				Date:   date,
 				Exists: false,
