@@ -39,6 +39,7 @@ macOS Intel
 
 ## ビルド
 
+    $ make release
 
 # License
 
