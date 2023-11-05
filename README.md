@@ -13,6 +13,18 @@
 
 ## 初期設定
 
+macOS Apple Silicon
+
+    $ curl -Lo togglTrack-wandering-warrior https://github.com/mamemomonga/togglTrack-wandering-warrior/releases/latest/download/togglTrack-wandering-warrior-darwin-arm64
+
+macOS Intel
+
+    $ curl -Lo togglTrack-wandering-warrior https://github.com/mamemomonga/togglTrack-wandering-warrior/releases/latest/download/togglTrack-wandering-warrior-darwin-amd64
+
+共通
+
+    $ chmod 755 togglTrack-wandering-warrior
+
 * [config.example.yaml](./config.example.yaml)を参考に、config.yamlを作成してください。
 
 ## 利用方法
