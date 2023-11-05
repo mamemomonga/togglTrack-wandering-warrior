@@ -50,7 +50,7 @@ func (t *Toggler) Monthly(now time.Time, startStopRound time.Duration) []Monthly
 
 	monthlyEntries := []MonthlyEntries{}
 
-	// 一ヶ月
+	// 1ヶ月
 	var startDateStr, endDateStr string
 	var startDateTime, endDateTime time.Time
 	tokyo, err := time.LoadLocation("Asia/Tokyo")
@@ -115,6 +115,11 @@ func (t *Toggler) Monthly(now time.Time, startStopRound time.Duration) []Monthly
 				}
 			}
 			if skip {
+				continue
+			}
+
+			// 稼働中のタスクは集計しない
+			if entry.Start == nil || entry.Stop == nil {
 				continue
 			}
 

@@ -23,6 +23,8 @@ func monthly(today, target time.Time) {
 	workTimeTotal := time.Duration(0)
 	monthly := tgr.Monthly(target, cfg.Worktimes.Round)
 
+	color.Fprintf(aw, "\n")
+
 	color.Fprintf(aw,
 		"@{bW} %s         @{|}|@{bW} %s  @{|}|@{bW} %s  @{|}|@{bW} %s   @{|}|@{bW} %s   @{|}|@{bW} %s  @{|}|@{bW} %s @{|}\n",
 		" 日付", "開始", "終了", "休憩", "稼働", "総稼働", "最低達成",
@@ -68,12 +70,32 @@ func monthly(today, target time.Time) {
 }
 
 func monthlySummary(now, target time.Time, weekdayTotal, weekdayRemain int, workTimeTotal time.Duration) {
+	color.Fprintf(aw, "\n")
+
 	color.Fprintf(aw, "@{bW}       %04d年%02d月の概要       @{|}\n", target.Year(), target.Month())
 
-	color.Fprintf(aw, "今日は@{!}%04d年%02d月%02d日@{|}です\n", now.Year(), now.Month(), now.Day())
-	color.Fprintf(aw, "@{!}%02d@{|}月の平日は@{!}%d日間@{|}で@{!}残り%d日@{|}で", target.Month(), weekdayTotal, weekdayRemain)
-	color.Fprintf(aw, "@{!}%5.2f%%@{|}が経過します\n", (float64(weekdayTotal-weekdayRemain)/float64(weekdayTotal))*100)
-	color.Fprintf(aw, "現在の総稼働時間は@{!}%s@{|}です\n", utils.DurationHourMin(workTimeTotal))
+	color.Fprintf(aw, "%02d月の平日は%d日間です。\n",
+		target.Month(), weekdayTotal)
+
+	color.Fprintf(aw, "%d日現在、残り%d日@{|}となり、@{!}%5.2f%%@{|}が経過ています\n",
+		target.Day(), weekdayRemain, (float64(weekdayTotal-weekdayRemain)/float64(weekdayTotal))*100)
+
+	color.Fprintf(aw, "\n")
+
+	color.Fprintf(aw, "現在の総稼働時間は@{!}%s@{|}で\n",
+		utils.DurationHourMin(workTimeTotal))
+
+	color.Fprintf(aw, "    最低稼働@{!}%.0f時間@{|}の@{!}%6.2f%%@{|}\n",
+		cfg.Worktimes.Min.Hours(),
+		(workTimeTotal.Hours()/cfg.Worktimes.Min.Hours())*100,
+	)
+	color.Fprintf(aw, "    最高稼働@{!}%.0f時間@{|}の@{!}%6.2f%%@{|}\n",
+		cfg.Worktimes.Max.Hours(),
+		(workTimeTotal.Hours()/cfg.Worktimes.Max.Hours())*100,
+	)
+	color.Fprintf(aw, "を消化しました。\n")
+
+	color.Fprintf(aw, "\n")
 
 	guessRemain := cfg.Worktimes.End.Sub(cfg.Worktimes.Start).Hours() * float64(weekdayRemain)
 	guessTotal := guessRemain + workTimeTotal.Hours()
@@ -105,5 +127,7 @@ func monthlySummary(now, target time.Time, weekdayTotal, weekdayRemain int, work
 		color.Fprintf(aw, "    @{wB} 達成が予測されます @{|}\n")
 	}
 
+	color.Fprintf(aw, "\n")
 	color.Fprintf(aw, "今週も勤労に勤しみましょう。\n")
+	color.Fprintf(aw, "\n")
 }
