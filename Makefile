@@ -1,5 +1,5 @@
 APPNAME=togglTrack-wandering-warrior
-RELEASE_VERSION=v0.0.2
+RELEASE_VERSION=v0.0.3
 
 CONTAINER_IMAGE=$(shell echo $(APPNAME) | tr A-Z a-z)
 

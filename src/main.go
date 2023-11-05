@@ -15,11 +15,11 @@ var cfg *configs.Configs
 var aw io.Writer
 
 func main() {
-
 	var err error
+	aw = ansicolor.NewAnsiColorWriter(os.Stdout)
 
 	var (
-		configFile  = flag.String("config", "./config.yaml", "configファイル")
+		configFile  = flag.String("config", "", "configファイル")
 		monthOffset = flag.Int("month", 0, "今月からn月戻る")
 	)
 	flag.Parse()
@@ -37,8 +37,6 @@ func main() {
 	if *monthOffset != 0 {
 		monthOffsetMode = true
 	}
-
-	aw = ansicolor.NewAnsiColorWriter(os.Stdout)
 
 	monthly(targetDate, monthOffsetMode)
 

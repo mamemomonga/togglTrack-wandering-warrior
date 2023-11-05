@@ -1,14 +1,16 @@
 package configs
 
 import (
-	"errors"
 	"fmt"
 	"log"
 	"os"
+	"path"
 	"time"
 
 	"gopkg.in/yaml.v2"
 )
+
+const app_name = "togglTrack-wandering-warrior"
 
 type Configs struct {
 	Toggl          Toggl     `yaml:"toggl"`
@@ -84,8 +86,14 @@ func (wt *Worktimes) UnmarshalYAML(unmarshal func(interface{}) error) error {
 }
 
 func New(filename string) (t *Configs, err error) {
+
+	if filename == "" {
+		filename = path.Join(os.Getenv("HOME"), ".config", app_name, "config.yaml")
+	}
+
 	if !fileExists(filename) {
-		return nil, errors.New("error: configfile not exists")
+		createTemplateFile(filename)
+		//		return nil, errors.New("error: configfile not exists")
 	}
 
 	t = &Configs{}
@@ -97,11 +105,67 @@ func New(filename string) (t *Configs, err error) {
 	if err != nil {
 		return nil, err
 	}
-	log.Printf("debug: [Read] %s", filename)
+	// log.Printf("debug: [Read] %s", filename)
+	if t.Toggl.Token == "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX" {
+		return nil, fmt.Errorf("%s を修正してください", filename)
+	}
 	return t, nil
 }
 
 func fileExists(filename string) bool {
 	_, err := os.Stat(filename)
 	return err == nil
+}
+
+func createTemplateFile(filename string) {
+	hdoc := `
+toggl:
+# API Tokenは https://track.toggl.com/profile から取得できる
+  token: "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+# WorkspaceIDは「Manage Workspaces」から対象のWorkspaceを選び、URLの /workspaces/[数値]/ の[数値]の部分
+  workspace_id: 0000000
+
+skip_project_ids:
+# 集計除外するプロジェクトIDを指定する
+# ProjectIDは「MANAGE → Projects → プロジェクトをクリック」し、URLの /projects/[数値]/ の[数値]の部分
+# 省略可
+  - 0000000 # 休憩
+
+worktimes:
+  min: "140h"   # 最低稼働時間
+  max: "180h"   # 最高稼働時間
+  rest: "1h"    # 標準の休憩時間
+  start: "9:00" # 標準の就業時間
+  end: "18:00"  # 標準の終業時間
+  round: "15m"  # 時間単位
+
+# 日本の祝日
+holidays:
+  - { date: 2023-10-09, name: "スポーツの日" }
+  - { date: 2023-11-03, name: "文化の日" }
+  - { date: 2023-11-23, name: "勤労感謝の日" }
+  - { date: 2023-12-31, name: "大晦日" }
+`
+	_ = hdoc
+	err := os.MkdirAll(path.Dir(filename), os.FileMode(0755))
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	f, err := os.Create(filename)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	_, err = f.Write([]byte(hdoc))
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Printf("---------------------------------\n")
+	fmt.Printf("%s\n", filename)
+	fmt.Printf("にテンプレートを書き出しました\n")
+	fmt.Printf("このファイルを編集して再実行してください\n")
+	fmt.Printf("---------------------------------\n")
+	os.Exit(0)
 }

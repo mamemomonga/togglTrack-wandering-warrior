@@ -96,6 +96,5 @@ func monthlySummary(now, target time.Time, weekdayTotal, weekdayRemain int, work
 		cfg.Worktimes.Max.Hours(),
 		((guessRemain+workTimeTotal.Hours())/cfg.Worktimes.Max.Hours())*100,
 	)
-	color.Fprintf(aw, "を達成予定です。\n")
-	color.Fprintf(aw, "今週も勤労に勤しみましょう\n")
+	color.Fprintf(aw, "を達成予定です。今週も勤労に勤しみましょう。\n")
 }

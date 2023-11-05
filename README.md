@@ -23,19 +23,32 @@ macOS Intel
 
 共通
 
-    $ chmod 755 togglTrack-wandering-warrior
+    $ chmod 755 ./togglTrack-wandering-warrior
+    
+初回実行時に設定ファイルのテンプレートを書き出すので、編集してください。
 
-* [config.example.yaml](./config.example.yaml)を参考に、config.yamlを作成してください。
+    $ ./togglTrack-wandering-warrior
+    $ vim ~/.config/togglTrack-wandering-warrior/config.yaml
+
+実行
+
+    $ ./togglTrack-wandering-warrior
+
+実行ファイルはパスの通ったところに設置してください。
 
 ## 利用方法
 
 今月のレポート    
 
-    $ ./toggl-wandering-warrior -config ./config.yaml
+    $ toggl-wandering-warrior
 
 前月のレポート
 
-    $ ./toggl-wandering-warrior -config ./config.yaml -month 1
+    $ toggl-wandering-warrior -month 1
+
+任意のconfig.yamlを使用する(-config省略時は $HOME/.config/toggl-wandering-warrior/config.yaml となります)
+
+    $ toggl-wandering-warrior -config ./config.yaml
 
 ## ビルド
 
