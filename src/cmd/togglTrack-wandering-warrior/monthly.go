@@ -26,7 +26,7 @@ func monthly(today, target time.Time) {
 	color.Fprintf(aw, "\n")
 
 	color.Fprintf(aw,
-		"@{bW} %s         @{|}|@{bW} %s  @{|}|@{bW} %s  @{|}|@{bW} %s   @{|}|@{bW} %s   @{|}|@{bW} %s  @{|}|@{bW} %s @{|}\n",
+		"@{bW} %s         @{|}|@{bW} %s  @{|}|@{bW} %s  @{|}|@{bW} %s  @{|}|@{bW} %s   @{|}|@{bW} %s  @{|}|@{bW} %s @{|}\n",
 		" 日付", "開始", "終了", "休憩", "稼働", "総稼働", "最低達成",
 	)
 
@@ -51,12 +51,11 @@ func monthly(today, target time.Time) {
 		}
 
 		if ent.Exists {
-
 			workTimeTotal = workTimeTotal + ent.Work
-			color.Fprintf(aw, " | %5s | %5s | %6s | %6s | %7s | %5.1f%%\n",
+			color.Fprintf(aw, " | %5s | %5s | %5s | %6s | %7s | %5.1f%%\n",
 				ent.Start.Format(time.TimeOnly)[0:5],
 				ent.Stop.Format(time.TimeOnly)[0:5],
-				utils.DurationHourMin(ent.Rest),
+				utils.DurationClockFmtHourMin(ent.Rest),
 				utils.DurationHourMin(ent.Work),
 				utils.DurationHourMin(workTimeTotal),
 				(workTimeTotal.Seconds()/cfg.Worktimes.Min.Seconds())*100,
