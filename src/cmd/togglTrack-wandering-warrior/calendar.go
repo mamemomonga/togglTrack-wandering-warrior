@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"time"
 
+	//	"github.com/davecgh/go-spew/spew"
+
 	"github.com/mamemomonga/togglTrack-wandering-warrior/src/utils"
 )
 
@@ -12,6 +14,7 @@ type MonthlyCalendarDay struct {
 	Color     string
 	OffName   string
 	IsHoliday bool
+	IsDayOff  bool
 	IsWeekday bool
 }
 
@@ -27,9 +30,23 @@ func monthlyCalendar(today, target time.Time) []MonthlyCalendarDay {
 
 	start, end := utils.MonthRange(target)
 
+	type kvht struct {
+		text    string
+		holiday bool
+	}
+
+	kvh := make(map[string]kvht, len(cfg.Holidays)+len(cfg.DaysOff))
+	for _, v := range cfg.Holidays {
+		kvh[v.Date] = kvht{text: v.Name, holiday: true}
+	}
+	for _, v := range cfg.DaysOff {
+		kvh[v.Date] = kvht{text: v.Name, holiday: false}
+	}
+
 	for date := start; date.Before(end); date = date.AddDate(0, 0, 1) {
 
 		ca := MonthlyCalendarDay{
+			IsDayOff:  false,
 			IsHoliday: false,
 			IsWeekday: false,
 		}
@@ -39,19 +56,20 @@ func monthlyCalendar(today, target time.Time) []MonthlyCalendarDay {
 		dateStr := date.Format(time.DateOnly)
 		ca.Text = fmt.Sprintf("%s(%s)", dateStr, weekJp[week])
 
-		for _, ho := range cfg.Holidays {
-			if dateStr == ho.Date {
-				ca.IsHoliday = true
-				ca.IsWeekday = false
-				ca.OffName = ho.Name
+		if v, ok := kvh[dateStr]; ok {
+			ca.IsDayOff = true
+			ca.IsWeekday = false
+			ca.IsHoliday = v.holiday
+			ca.OffName = v.text
+			if v.holiday {
 				ca.Color = "red"
-				appendCal(ca, dateStr)
-				continue
+			} else {
+				ca.Color = "blue"
 			}
-		}
-		if ca.IsHoliday {
+			appendCal(ca, dateStr)
 			continue
 		}
+
 		switch week {
 		case 0: // 日曜日
 			ca.OffName = "休日"

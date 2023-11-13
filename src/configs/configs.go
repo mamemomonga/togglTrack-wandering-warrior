@@ -15,8 +15,9 @@ const app_name = "togglTrack-wandering-warrior"
 type Configs struct {
 	Toggl          Toggl     `yaml:"toggl"`
 	SkipProjectIds []int     `yaml:"skip_project_ids"`
-	Holidays       []Holiday `yaml:"holidays"`
 	Worktimes      Worktimes `yaml:"worktimes"`
+	Holidays       []DayOff  `yaml:"holidays"`
+	DaysOff        []DayOff  `yaml:"daysoff"`
 }
 
 type Toggl struct {
@@ -24,7 +25,7 @@ type Toggl struct {
 	WorkspaceId int    `yaml:"workspace_id"`
 }
 
-type Holiday struct {
+type DayOff struct {
 	Date string `yaml:"date"`
 	Name string `yaml:"name"`
 }
@@ -145,6 +146,10 @@ holidays:
   - { date: 2023-11-03, name: "文化の日" }
   - { date: 2023-11-23, name: "勤労感謝の日" }
   - { date: 2023-12-31, name: "大晦日" }
+
+# 独自に定義した休暇
+daysoff:
+  - { date: 2023-10-10 name: "バカンス" }
 `
 	_ = hdoc
 	err := os.MkdirAll(path.Dir(filename), os.FileMode(0755))

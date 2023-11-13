@@ -9,7 +9,6 @@ import (
 )
 
 func monthly(today, target time.Time, offDates int) {
-
 	weekdayTotal := 0
 	weekdayRemain := 0
 
