@@ -8,7 +8,7 @@ import (
 	"github.com/wsxiaoys/terminal/color"
 )
 
-func monthly(today, target time.Time) {
+func monthly(today, target time.Time, offDates int) {
 
 	weekdayTotal := 0
 	weekdayRemain := 0
@@ -65,18 +65,18 @@ func monthly(today, target time.Time) {
 		}
 	}
 
-	monthlySummary(today, target, weekdayTotal, weekdayRemain, workTimeTotal)
+	monthlySummary(today, target, weekdayTotal, weekdayRemain, workTimeTotal, offDates)
 }
 
-func monthlySummary(now, target time.Time, weekdayTotal, weekdayRemain int, workTimeTotal time.Duration) {
+func monthlySummary(now, target time.Time, weekdayTotal, weekdayRemain int, workTimeTotal time.Duration, offDates int) {
 	color.Fprintf(aw, "\n")
 
 	color.Fprintf(aw, "@{bW}       %04d年%02d月の概要       @{|}\n", target.Year(), target.Month())
 
-	color.Fprintf(aw, "%02d月の平日は%d日間です。\n",
-		target.Month(), weekdayTotal)
+	color.Fprintf(aw, "%02d月の平日は%d日間です。\n", target.Month(), weekdayTotal)
+	color.Fprintf(aw, "今後の平日休暇は@{!}%d日間@{|}の予定です。\n", offDates)
 
-	color.Fprintf(aw, "%d日現在、残り%d日@{|}となり、@{!}%5.2f%%@{|}が経過ています\n",
+	color.Fprintf(aw, "%d日現在、平日は残り%d日@{|}となり、@{!}%5.2f%%@{|}が経過ています\n",
 		target.Day(), weekdayRemain, (float64(weekdayTotal-weekdayRemain)/float64(weekdayTotal))*100)
 
 	color.Fprintf(aw, "\n")
@@ -84,18 +84,13 @@ func monthlySummary(now, target time.Time, weekdayTotal, weekdayRemain int, work
 	color.Fprintf(aw, "現在の総稼働時間は@{!}%s@{|}で\n",
 		utils.DurationHourMin(workTimeTotal))
 
-	color.Fprintf(aw, "    最低稼働@{!}%.0f時間@{|}の@{!}%6.2f%%@{|}\n",
-		cfg.Worktimes.Min.Hours(),
-		(workTimeTotal.Hours()/cfg.Worktimes.Min.Hours())*100,
-	)
-	color.Fprintf(aw, "    最高稼働@{!}%.0f時間@{|}の@{!}%6.2f%%@{|}\n",
-		cfg.Worktimes.Max.Hours(),
-		(workTimeTotal.Hours()/cfg.Worktimes.Max.Hours())*100,
-	)
+	dispWorkTimeRange(workTimeTotal.Hours())
 	color.Fprintf(aw, "を消化しました。\n")
 
 	color.Fprintf(aw, "\n")
 
+	// 平日休暇
+	weekdayRemain = weekdayRemain - offDates
 	guessRemain := cfg.Worktimes.End.Sub(cfg.Worktimes.Start).Hours() * float64(weekdayRemain)
 	guessTotal := guessRemain + workTimeTotal.Hours()
 
@@ -108,15 +103,7 @@ func monthlySummary(now, target time.Time, weekdayTotal, weekdayRemain int, work
 	color.Fprintf(aw, "  残総稼働時間は@{!}%.0f時間@{|}となり\n",
 		guessRemain,
 	)
-
-	color.Fprintf(aw, "    最低稼働@{!}%.0f時間@{|}の@{!}%6.2f%%@{|}\n",
-		cfg.Worktimes.Min.Hours(),
-		(guessTotal/cfg.Worktimes.Min.Hours())*100,
-	)
-	color.Fprintf(aw, "    最高稼働@{!}%.0f時間@{|}の@{!}%6.2f%%@{|}\n",
-		cfg.Worktimes.Max.Hours(),
-		(guessTotal/cfg.Worktimes.Max.Hours())*100,
-	)
+	dispWorkTimeRange(guessTotal)
 
 	if guessTotal < cfg.Worktimes.Min.Hours() {
 		color.Fprintf(aw, "    @{bY} 未達が予測されます @{|}\n")
@@ -129,4 +116,15 @@ func monthlySummary(now, target time.Time, weekdayTotal, weekdayRemain int, work
 	color.Fprintf(aw, "\n")
 	color.Fprintf(aw, "今週も勤労に勤しみましょう。\n")
 	color.Fprintf(aw, "\n")
+}
+
+func dispWorkTimeRange(totalHours float64) {
+	color.Fprintf(aw, "    最低稼働@{!}%.0f時間@{|}の@{!}%6.2f%%@{|}\n",
+		cfg.Worktimes.Min.Hours(),
+		(totalHours/cfg.Worktimes.Min.Hours())*100,
+	)
+	color.Fprintf(aw, "    最高稼働@{!}%.0f時間@{|}の@{!}%6.2f%%@{|}\n",
+		cfg.Worktimes.Max.Hours(),
+		(totalHours/cfg.Worktimes.Max.Hours())*100,
+	)
 }

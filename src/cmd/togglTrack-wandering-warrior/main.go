@@ -30,6 +30,7 @@ func main() {
 		configFile  = flag.String("config", "", "configファイル")
 		monthOffset = flag.Int("month", 0, "今月からn月戻る")
 		demo        = flag.Bool("demo", false, "デモモード")
+		offDates    = flag.Int("off", 0, "平日休暇日数")
 	)
 	flag.Parse()
 
@@ -55,6 +56,6 @@ func main() {
 	// 対象日
 	target := today.AddDate(0, -*monthOffset, 0)
 
-	monthly(today, target)
+	monthly(today, target, *offDates)
 
 }
