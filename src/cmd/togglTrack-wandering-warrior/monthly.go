@@ -72,11 +72,11 @@ func monthlySummary(now, target time.Time, weekdayTotal, weekdayRemain int, work
 
 	color.Fprintf(aw, "@{bW}       %04d年%02d月の概要       @{|}\n", target.Year(), target.Month())
 
-	color.Fprintf(aw, "%02d月の平日は%d日間です。\n", target.Month(), weekdayTotal)
-	color.Fprintf(aw, "今後の平日休暇は@{!}%d日間@{|}の予定です。\n", offDates)
+	color.Fprintf(aw, "%02d月の営業日は%d日間です。\n", target.Month(), weekdayTotal)
+	color.Fprintf(aw, "今後の休業日は@{!}%d日間@{|}の予定です。\n", offDates)
 
-	color.Fprintf(aw, "%d日現在、平日は残り%d日@{|}となり、@{!}%5.2f%%@{|}が経過ています\n",
-		target.Day(), weekdayRemain, (float64(weekdayTotal-weekdayRemain)/float64(weekdayTotal))*100)
+	color.Fprintf(aw, "%d月%d日現在、営業日は残り%d日@{|}となり、@{!}%5.2f%%@{|}が経過しています\n",
+		now.Month(), now.Day(), weekdayRemain, (float64(weekdayTotal-weekdayRemain)/float64(weekdayTotal))*100)
 
 	color.Fprintf(aw, "\n")
 
