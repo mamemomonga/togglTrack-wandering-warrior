@@ -64,8 +64,8 @@ func (t *Toggler) Monthly(now time.Time, startStopRound time.Duration) []Monthly
 	// 取得
 	c := t.newAPIClient()
 	timeEntries, err := c.GetTimeEntries(context.Background(), &toggl.GetTimeEntriesQuery{
-		StartDate: t.dateStringPtr(startDateTime),
-		EndDate:   t.dateStringPtr(endDateTime),
+		StartDate: t.dateStringPtr(startDateTime.UTC()),
+		EndDate:   t.dateStringPtr(endDateTime.UTC()),
 	})
 	if err != nil {
 		log.Fatal(err)
