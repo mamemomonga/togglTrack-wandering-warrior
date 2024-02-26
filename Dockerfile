@@ -14,4 +14,5 @@ WORKDIR /g
 
 RUN set -xe && \
     rm -rf /g/release && \
+    go mod vendor && \
     make release
